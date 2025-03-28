@@ -1,0 +1,6 @@
+*.db
+.note
+vendor
+__pycache__
+*.json
+!composer.json
