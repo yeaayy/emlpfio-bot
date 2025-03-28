@@ -1,0 +1,9 @@
+{
+    "telegram_token": "12345678:TELEGRAM_TOKEN_HERE",
+    "app_token": "APP_TOKEN_HERE",
+    "bot_server": "http://localhost:8080",
+    "video_path": "",
+    "dst_id": 123456789,
+    "fps": 3,
+    "start_frame": 0
+}

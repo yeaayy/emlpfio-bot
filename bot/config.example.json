@@ -1,0 +1,10 @@
+{
+    "app_token": "APP_TOKEN_HERE",
+    "server": "http://localhost:8080",
+    "ref_time": 1708470000.0,
+    "default_interval": 3600.0,
+    "default_batch_size": 16,
+    "default_max_queue": 20,
+    "active": [
+    ]
+}

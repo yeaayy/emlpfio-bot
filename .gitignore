@@ -4,3 +4,4 @@ vendor
 __pycache__
 *.json
 !composer.json
+!*.example.json
