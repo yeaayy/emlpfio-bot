@@ -44,6 +44,11 @@ class Request implements \ArrayAccess
         return $validated;
     }
 
+    function all()
+    {
+        return $this->fields;
+    }
+
     function __get($name)
     {
         return $this->fields[$name];

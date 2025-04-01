@@ -8,7 +8,7 @@ import socket
 from common import ConfigFile, key, cfg
 
 time_format = "%Y-%m-%d %H:%M:%S"
-requests.get
+
 def create_post(s: requests.Session, super_config: ConfigFile, config: ConfigFile):
     try:
         result: requests.Response = s.post(f"{super_config[key.server]}/show/{config[key.show]}/group/{config[key.album]}/frame/{config[key.next_frame]}/post",
@@ -23,7 +23,7 @@ def create_post(s: requests.Session, super_config: ConfigFile, config: ConfigFil
             config[key.next_frame] += 1
             return True
         else:
-            print(f"Error {result.status_code} {result.text}")
+            print(f"Error {result.status_code} {result.json()['error']}")
     except Exception as e:
         print(f"Error {e}")
         time.sleep(15)

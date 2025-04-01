@@ -47,6 +47,60 @@ class PostController
             'user_id' => v::required(),
         ]);
 
+        // Check if this frame already posted but not recorded.
+        $result = json_decode(Util::fetch("https://graph.facebook.com/v19.0/$req[page_id]/feed", [
+            'limit' => 1,
+            'fields' => 'id,message',
+            'access_token' => $req['fb_token'],
+        ]), true);
+        if (!$result) {
+            http_response_code(502);
+            return [ 'error' => 'Network error, can\'t check the last post.' ];
+        } else if (key_exists('error', $result)) {
+            http_response_code(502);
+            return [ 'error' => $result['error']['message'] ];
+        }
+        $result = $result['data'][0];
+        if (preg_match("/^(?<group>.+) - Frame (?<frame>\d+) out of \d+(?:\n|$)/", $result['message'], $post)) {
+            $s = DB::prepare(
+                'SELECT f.id AS frame_id, g.alias AS `group`, p.fb_post
+                FROM `shows` AS s
+                JOIN `groups` AS g ON s.id = g.show_id
+                JOIN `frames` AS f ON g.id = f.group_id
+                LEFT JOIN `posts` AS p ON f.id = p.frame_id
+                WHERE s.alias = :show
+                AND g.name = :group
+                AND f.frame_index = :frame'
+            );
+            $s->execute([
+                'show' => $req['show'],
+                'group' => $post['group'],
+                'frame' => $post['frame'],
+            ]);
+            // Guard in case of the frame doesn't actually exists.
+            if ($stored_post = $s->fetch()) {
+                // If the stored fb post is null store the fetched id.
+                if ($stored_post['fb_post'] === null) {
+                    $s = DB::prepare(
+                        'INSERT INTO `posts`(`user_id`, `frame_id`,`fb_post`)
+                        SELECT id, :frame_id, :fb_post
+                        FROM `users`
+                        WHERE page_id = :page_id'
+                    );
+                    $s->execute([
+                        'frame_id' => $stored_post['frame_id'],
+                        'fb_post' => $result['id'],
+                        'page_id' => $v['page_id']
+                    ]);
+                }
+
+                // If the last post is exactly the frame we are going to post, return success.
+                if ($stored_post['group'] == $v['group'] && $post['frame'] == $v['frame']) {
+                    return [ 'ok' => true ];
+                }
+            }
+        }
+
         $frame_count = (new GroupController)->getFrameCount($req)['count'];
 
         $s = DB::prepare(
@@ -103,6 +157,12 @@ class PostController
             'url' => $image_url,
         ], []), true);
 
+        if ($result === null) {
+            http_response_code(502);
+            return [
+                'error' => 'Network error',
+            ];
+        }
         if (key_exists('error', $result)) {
             http_response_code(502);
             return [
