@@ -21,10 +21,10 @@ config = ConfigFile(key.config_name)
 s = requests.Session()
 s.headers['x-auth'] = config[key.app_token]
 
-API_FETCH_REACTS = f"http://{config[key.server]}/show/{show_name}/group/{group_name}/fetch_reacts"
+API_FETCH_REACTS = f"{config[key.server]}/show/{show_name}/group/{group_name}/fetch_reacts"
 
 # Get frame count
-result: requests.Response = s.get(f"http://{config[key.server]}/show/{show_name}/group/{group_name}/frame_count")
+result: requests.Response = s.get(f"{config[key.server]}/show/{show_name}/group/{group_name}/frame_count")
 if result.status_code != 200:
     print(f"{show_name}-{group_name} not found")
     exit(1)
