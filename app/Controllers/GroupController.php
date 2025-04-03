@@ -93,8 +93,7 @@ class GroupController
             'UPDATE `groups` AS g
             SET %fields%, updated_at=@now
             WHERE alias = :group
-            AND EXISTS (SELECT id FROM `shows` AS s WHERE s.alias = :show AND s.id = g.show_id)
-            LIMIT 1',
+            AND EXISTS (SELECT id FROM `shows` AS s WHERE s.alias = :show AND s.id = g.show_id)',
             $v, ['alias', 'name', 'fps', 'gen']
         );
         if (!$s) return [ 'ok' => true ];
