@@ -298,7 +298,7 @@ class BestAlbumController {
 
         $s = DB::prepare(
             'SELECT
-                g.name as `group`
+                g.name as `group`,
                 f.frame_index,
                 :page_id || \'_\' || bp.fb_post as post,
                 p.fb_post as orig_post,
@@ -312,12 +312,12 @@ class BestAlbumController {
             WHERE
                 s.alias = :show AND
                 g.alias = :group AND
-                ba.user_id = :user_id AND
-                bp.fb_post IS NOT NULL
+                ba.user_id = :user_id
             LIMIT :frame, 1'
         );
-        $row = $s->execute($v);
-        if (!$row) {
+        $s->execute($v);
+
+        if (!($row = $s->fetch())) {
             throw new NotFound();
         }
 
@@ -329,8 +329,9 @@ class BestAlbumController {
         $result = json_decode(Util::fetch("https://graph.facebook.com/v19.0/$row[post]", [
             'access_token' => $req['fb_token'],
         ], [
-            'caption' => $caption,
+            'message' => $caption,
         ]), true);
+
         return $result;
     }
 
