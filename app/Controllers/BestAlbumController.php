@@ -286,6 +286,54 @@ class BestAlbumController {
         }
     }
 
+    function fixCaption(Request $req)
+    {
+        $v = $req->validate([
+            'show' => v::required()->string()->range(1, 10),
+            'group' => v::required()->string()->range(1, 10),
+            'frame' => v::required()->number(),
+            'user_id' => v::required(),
+            'page_id' => v::required(),
+        ]);
+
+        $s = DB::prepare(
+            'SELECT
+                g.name as `group`
+                f.frame_index,
+                :page_id || \'_\' || bp.fb_post as post,
+                p.fb_post as orig_post,
+                bp.reacts
+            FROM `shows` AS s
+            JOIN `groups` AS g ON g.show_id = s.id
+            JOIN `best_albums` AS ba ON ba.group_id = g.id
+            JOIN `best_posts` AS bp ON bp.album_id = ba.id
+            JOIN `posts` AS p ON bp.post_id = p.id
+            JOIN `frames` AS f ON p.frame_id = f.id
+            WHERE
+                s.alias = :show AND
+                g.alias = :group AND
+                ba.user_id = :user_id AND
+                bp.fb_post IS NOT NULL
+            LIMIT :frame, 1'
+        );
+        $row = $s->execute($v);
+        if (!$row) {
+            throw new NotFound();
+        }
+
+        $caption =
+            "Best of $row[group]\n" .
+            "Frame $row[frame_index] received $row[reacts] reacts.\n\n" .
+            "View original post on https://www.facebook.com/$row[orig_post]";
+
+        $result = json_decode(Util::fetch("https://graph.facebook.com/v19.0/$row[post]", [
+            'access_token' => $req['fb_token'],
+        ], [
+            'caption' => $caption,
+        ]), true);
+        return $result;
+    }
+
     function unpostFrame(Request $req)
     {
         $v = $req->validate([

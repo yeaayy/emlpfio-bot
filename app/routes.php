@@ -53,6 +53,7 @@ $route->group('/show/:show/group/:group', function (Route $route) {
         $route->post('next', [BestAlbumController::class, 'postNext']);
         $route->post('clear', [BestAlbumController::class, 'clearAlbum']);
         $route->get(':frame', [BestAlbumController::class, 'getFrame']);
+        $route->post(':frame/fix', [BestAlbumController::class, 'fixCaption']);
         $route->post(':frame/unpost', [BestAlbumController::class, 'unpostFrame']);
     });
     $route->group('frame', function (Route $route) {
