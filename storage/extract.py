@@ -17,9 +17,13 @@ if len(os.sys.argv) != 4:
     exit(1)
 
 def check_group():
-    result = session.get(f"{bot_server}/show/{show_name}/group/{group_name}").json()
+    global start_frame
+    result = session.get(f"{bot_server}/show/{show_name}/group/{group_name}/first_empty").json()
     if 'error' in result:
         print(f"Error {show_name}-{group_name}: {result['error']}")
+        exit(1)
+    else:
+        start_frame = result['count']
 
 def save_config():
     with open(config_name, 'w') as file:
@@ -27,7 +31,7 @@ def save_config():
 
 async def store(file_data, frame_index):
     # Check if frame already exist
-    check = session.get(f"{bot_server}/show/{show_name}/group/{group_name}/{frame_index}")
+    check = session.get(f"{bot_server}/show/{show_name}/group/{group_name}/frame/{frame_index}")
     if check.status_code == 200:
         print(f'{show_name}.{group_name}.{frame_index} exist skipping...')
         return
@@ -55,7 +59,7 @@ async def store(file_data, frame_index):
     print()
     print(f"{filename} ok")
     doc = result.document
-    store_result: requests.Response = session.post(f"{bot_server}/show/{show_name}/group/{group_name}", {
+    store_result: requests.Response = session.post(f"{bot_server}/show/{show_name}/group/{group_name}/frame", {
         'frame': frame_index,
         'file': doc.file_id,
     })
@@ -88,6 +92,8 @@ start_frame = config['start_frame']
 bot_server = config['bot_server']
 bot = telegram.Bot(config['telegram_token'])
 check_group()
+if start_frame != 0:
+    print(f"Continue from: frame {start_frame}")
 
 probe = ffmpeg.probe(video_path)
 

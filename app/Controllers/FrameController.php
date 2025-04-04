@@ -21,13 +21,21 @@ class FrameController
         $s= DB::prepare(
             'SELECT
                 f.frame_index as frame, f.file_id as file, f.path, f.last_request, f.updated_at
-            FROM `frames` AS f
-            LEFT JOIN `groups` AS g ON f.group_id=g.id
-            LEFT JOIN `shows` AS s ON g.show_id=s.id
-            WHERE s.alias=:show AND g.alias=:group'
+            FROM `shows` AS s
+            LEFT JOIN `groups` AS g ON g.show_id=s.id
+            LEFT JOIN `frames` AS f ON f.group_id=g.id
+            WHERE s.alias=:show AND g.alias=:group
+            ORDER BY f.frame_index'
         );
         $s->execute($v);
+        if ($s->rowCount() === 0) {
+            throw new NotFound();
+        }
         $result = [];
+        $row = $s->fetch();
+        if ($row['frame'] !== null) {
+            array_push($result, $row);
+        }
         while (($row = $s->fetch())) {
             array_push($result, $row);
         }
@@ -47,17 +55,20 @@ class FrameController
                 `frames`(`group_id`, `frame_index`, `file_id`)
             SELECT g.id, :frame, :file
             FROM `shows` AS s
-            LEFT JOIN `groups` AS g
+            LEFT JOIN `groups` AS g ON g.show_id = s.id
             WHERE s.alias = :show AND g.alias = :group'
         );
         try {
             $s->execute($v);
-            return [ 'ok' => true, $v ];
+            if ($s->rowCount() === 0) {
+                throw new NotFound();
+            }
+            return [ 'ok' => true ];
         } catch(PDOException $e) {
             if ($e->getCode() == 23000) {
                 throw new Conflict('Frame already exists');
             }
-            throw new Conflict($e->getMessage());
+            throw new Conflict($e->getMessage(). 'Query: '.$s->queryString);
         }
     }
 
@@ -169,5 +180,35 @@ class FrameController
         }
         $image_url = Util::get_telegram_url($req['telegram_token'], $data['file_id'], $data['id'], $data['path'], $data['last_request']);
         return [ 'url' => $image_url ];
+    }
+
+    function getFirstEmptyIndex(Request $req)
+    {
+        $v = $req->validate([
+            'show' => v::required()->string()->range(1, 10),
+            'group' => v::required()->string()->range(1, 10),
+        ]);
+        $s= DB::prepare(
+            'SELECT
+                f.frame_index as frame
+            FROM `shows` AS s
+            LEFT JOIN `groups` AS g ON g.show_id=s.id
+            LEFT JOIN `frames` AS f ON f.group_id=g.id
+            WHERE s.alias=:show AND g.alias=:group
+            ORDER BY f.frame_index'
+        );
+        $s->execute($v);
+        if ($s->rowCount() === 0) {
+            throw new NotFound();
+        }
+        $index = 0;
+        while (($row = $s->fetch())) {
+            if ($row['frame'] == strval($index + 1)) {
+                $index++;
+            } else {
+                break;
+            }
+        }
+        return ['index' => $index];
     }
 }

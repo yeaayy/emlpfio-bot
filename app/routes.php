@@ -41,6 +41,7 @@ $route->group('/show/:show/group/:group', function (Route $route) {
     $route->get('frame_count', [GroupController::class, 'getFrameCount']);
     $route->post('fetch_reacts', [ReactController::class, 'fetchReacts']);
     $route->get('react_stat', [ReactController::class, 'getGroupReactStat']);
+    $route->get('first_empty', [FrameController::class, 'getFirstEmptyIndex']);
 
     $route->group('subtitle', function (Route $route) {
         $route->get([SubtitleController::class, 'getAll']);
