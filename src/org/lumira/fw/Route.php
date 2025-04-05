@@ -26,20 +26,10 @@ class Route {
     function handle($paths, $method, Request $req) {
         if (count($paths) === 0) {
             if (!key_exists($method, $this->methodHandlers)) {
-                if ($method === 'GET') {
-                    throw new NotFound();
-                } else {
-                    throw new MethodNotAllowed();
-                }
+                throw new MethodNotAllowed();
             }
 
             return $this->methodHandlers[$method]->run($req);
-            // $handler = $this->methodHandlers[$method];
-            // if (gettype($handler) === 'array') {
-            //     return (new $handler[0])->{$handler[1]}($req);
-            // } else {
-            //     return $handler($req);
-            // }
         }
 
         $segment = array_shift($paths);

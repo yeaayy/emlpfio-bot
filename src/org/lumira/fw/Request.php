@@ -95,24 +95,31 @@ class Request implements \ArrayAccess
         foreach ($_GET as $k => $v) {
             $result[$k] = trim($v);
         }
-        foreach ($_POST as $k => $v) {
-            $result[$k] = trim($v);
-        }
         foreach ($_FILES as $k => $v) {
             $result[$k] = $v;
         }
-        if (key_exists('CONTENT_TYPE', $_SERVER) && $_SERVER['CONTENT_TYPE'] === 'application/json') {
-            $json = json_decode(file_get_contents('php://input'), true);
-            if (json_last_error() !== JSON_ERROR_NONE) {
-                http_response_code(400);
-                echo json_encode([
-                    'error' => 'Malformed json input',
-                ]);
-                exit;
+        if (key_exists('CONTENT_TYPE', $_SERVER)) {
+            switch ($_SERVER['CONTENT_TYPE']) {
+            case 'application/json':
+                $json = json_decode(file_get_contents('php://input'), true);
+                if (json_last_error() !== JSON_ERROR_NONE) {
+                    http_response_code(400);
+                    echo json_encode([
+                        'error' => 'Malformed json input',
+                    ]);
+                    exit;
+                }
+                foreach ($json as $k => $v) {
+                    $result[$k] = $v;
+                }
+            case 'text/plain':
+                break;
+            default:
+                foreach ($_POST as $k => $v) {
+                    $result[$k] = trim($v);
+                }
             }
-            foreach ($json as $k => $v) {
-                $result[$k] = $v;
-            }
+
         }
         return new Request($result);
     }

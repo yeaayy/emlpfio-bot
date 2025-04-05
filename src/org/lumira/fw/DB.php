@@ -2,6 +2,7 @@
 
 namespace org\lumira\fw;
 
+use org\lumira\Errors\HttpError;
 use PDO;
 use PDOException;
 use PDOStatement;
@@ -17,7 +18,6 @@ class DB {
     }
 
     private static function get_connection(): \PDO {
-        // global $cfg;
         $db = cfg::db();
         try {
             switch ($db->driver) {
@@ -33,7 +33,7 @@ class DB {
                 self::unknown_driver();
             }
         } catch (PDOException $e) {
-            die($e->getMessage());
+            throw new HttpError(500, $e->getMessage());
         }
     }
 

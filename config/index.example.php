@@ -1,7 +1,10 @@
 <?php
 return [
     'log_path' => __DIR__ . "/../log/error.log",
-    'backup_key' => '',
+    'backup' => [
+        'key' => '',
+        'limit' => 5000,
+    ],
     'db' => [
         'driver' => 'mysql',
         'host' => 'localhost',

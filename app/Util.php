@@ -6,7 +6,7 @@ use DateInterval;
 use org\lumira\fw\DB;
 
 class Util {
-    static function fetch($url, array $query = [], array | null $post_data = null, $method = null)
+    static function fetch($url, array $query = [], array | string | null $post_data = null, string | null $method = null, array | null $headers = null)
     {
         $curl = curl_init();
         if (!empty($query)) {
@@ -20,8 +20,20 @@ class Util {
         if (!empty($method)) {
             curl_setopt($curl, CURLOPT_CUSTOMREQUEST, $method);
         }
+        if ($headers !== null) {
+            if (key_exists(0, $headers)) {
+                curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
+            } else {
+                $h = [];
+                foreach ($headers as $k => $v) {
+                    array_push($h, "$k: $v");
+                }
+                curl_setopt($curl, CURLOPT_HTTPHEADER, $h);
+            }
+        }
         curl_setopt($curl, CURLOPT_TIMEOUT, 300);
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($curl, CURLOPT_FAILONERROR, false);
         $result = curl_exec($curl);
         curl_close($curl);
         return $result;

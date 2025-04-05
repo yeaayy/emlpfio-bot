@@ -20,10 +20,9 @@ $route->get('route', function() use ($route) {
 });
 
 $route->group('/backup', function (Route $route) {
-    $route->middleware(CheckBackupKey::class);
-    $route->post('/send', [BackupController::class, 'send']);
-    $route->post('/last_id', [BackupController::class, 'getLastId']);
-    $route->post('/receive', [BackupController::class, 'receive']);
+    $route->get('last_id', [BackupController::class, 'getLastId'])->middleware(CheckBackupKey::class);
+    $route->post('receive', [BackupController::class, 'receive'])->middleware(CheckBackupKey::class);
+    $route->post('send', [BackupController::class, 'send'])->middleware(Auth::class);
 });
 
 $route->middleware(Auth::class);
