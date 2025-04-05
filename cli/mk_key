@@ -1,0 +1,9 @@
+#!/bin/bash
+
+LETTER=${2-ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789}
+LETTERS_COUNT=${#LETTER}
+for i in $(seq ${1-100}); do
+    n=$((SRANDOM % LETTERS_COUNT))
+    echo -n ${LETTER:$n:1}
+done
+echo
