@@ -28,11 +28,11 @@ class FrameController
             ORDER BY f.frame_index'
         );
         $s->execute($v);
-        if ($s->rowCount() === 0) {
-            throw new NotFound();
-        }
         $result = [];
         $row = $s->fetch();
+        if ($row === null) {
+            throw new NotFound();
+        }
         if ($row['frame'] !== null) {
             array_push($result, $row);
         }
@@ -198,13 +198,12 @@ class FrameController
             ORDER BY f.frame_index'
         );
         $s->execute($v);
-        if ($s->rowCount() === 0) {
-            throw new NotFound();
-        }
         $index = 0;
         while (($row = $s->fetch())) {
             if ($row['frame'] == strval($index + 1)) {
                 $index++;
+            } else if ($row['frame'] === null) {
+                throw new NotFound();
             } else {
                 break;
             }

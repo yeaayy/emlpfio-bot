@@ -33,14 +33,15 @@ try {
     exit;
 } catch(ValidationError $e) {
     http_response_code(400);
+    header("Content-Type: application/json");
     echo json_encode([
         'error' => $e->errors,
     ]);
 } catch(HttpError $e) {
     http_response_code($e->getCode());
+    header("Content-Type: application/json");
     echo json_encode([
         'error' => $e->getMessage(),
     ]);
 }
-header("Content-Type: application/json");
 echo "\n";
