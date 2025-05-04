@@ -97,7 +97,8 @@ class ReactController {
                 WHERE
                     s.alias = :show AND
                     g.alias = :group AND
-                    p.user_id = :user_id
+                    p.user_id = :user_id AND
+                    r.react="t"
                 GROUP BY p.id)
             GROUP BY react
             ORDER BY react DESC'
