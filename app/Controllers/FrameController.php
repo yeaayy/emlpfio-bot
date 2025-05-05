@@ -203,10 +203,13 @@ class FrameController
             if ($row['frame'] == strval($index + 1)) {
                 $index++;
             } else if ($row['frame'] === null) {
-                throw new NotFound();
+                return ['index' => 0];
             } else {
                 break;
             }
+        }
+        if ($index === 0) {
+            throw new NotFound();
         }
         return ['index' => $index];
     }

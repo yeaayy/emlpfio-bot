@@ -6,6 +6,7 @@ use org\lumira\Errors\NotFound;
 use org\lumira\fw\DB;
 use org\lumira\fw\Request;
 use org\lumira\fw\v;
+use PDO;
 
 class SubtitleController
 {
@@ -50,5 +51,25 @@ class SubtitleController
         $result = $s->fetch();
         if (!$result) throw new NotFound();
         return $result;
+    }
+
+    function getAtTime(Request $req)
+    {
+        $v = $req->validate([
+            'show' => v::required()->string()->range(1, 10),
+            'group' => v::required()->string()->range(1, 10),
+            'time' => v::required(),
+        ]);
+        $s= DB::prepare(
+            'SELECT
+                t.id, t.start, t.end, t.text
+            FROM `shows` AS s
+            LEFT JOIN `groups` AS g ON g.show_id = s.id
+            LEFT JOIN `subtitles` AS t ON t.group_id = g.id
+            WHERE s.alias = :show AND g.alias = :group
+            AND :time BETWEEN t.start AND t.end'
+        );
+        $s->execute($v);
+        return $s->fetch();
     }
 }

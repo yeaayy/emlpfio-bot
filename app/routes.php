@@ -45,6 +45,7 @@ $route->group('/show/:show/group/:group', function (Route $route) {
     $route->group('subtitle', function (Route $route) {
         $route->get([SubtitleController::class, 'getAll']);
         $route->get(':subs', [SubtitleController::class, 'get']);
+        $route->get('at-time/:time', [SubtitleController::class, 'getAtTime']);
     });
     $route->group('best', function (Route $route) {
         $route->get([BestAlbumController::class, 'getAlbum']);
