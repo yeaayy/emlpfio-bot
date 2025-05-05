@@ -66,6 +66,12 @@ class ValidationChain extends ValidationRule
         return $this;
     }
 
+    public function file(?string $msgNotFile = null, ?string $msgErrorUpload = null)
+    {
+        $this->chain(new ValidateFile($msgNotFile, $msgErrorUpload));
+        return $this;
+    }
+
     function validate($input): mixed
     {
         foreach ($this->rules as $rule) {

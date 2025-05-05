@@ -12,10 +12,10 @@ abstract class ValidationRule {
 
     public abstract function validate($input): mixed;
 
-    protected function resultError($param = []) {
+    protected function resultError($param = [], ?string $msg = null) {
         return [
             'error' => true,
-            'msg' => strtr($this->msg, $param),
+            'msg' => strtr($msg ?? $this->msg, $param),
         ];
     }
 

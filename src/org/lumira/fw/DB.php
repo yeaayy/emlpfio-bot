@@ -81,6 +81,11 @@ class DB {
         return self::use()->commit();
     }
 
+    static function rollBack()
+    {
+        return self::use()->rollBack();
+    }
+
     static function query(string $query, int|null $fetchMode = null, mixed ...$fetch_mode_args): PDOStatement | false
     {
         return self::use()->query(self::tr($query), $fetchMode, ...$fetch_mode_args);

@@ -43,6 +43,7 @@ $route->group('/show/:show/group/:group', function (Route $route) {
     $route->get('first_empty', [FrameController::class, 'getFirstEmptyIndex']);
 
     $route->group('subtitle', function (Route $route) {
+        $route->post('upload', [SubtitleController::class, 'upload']);
         $route->get([SubtitleController::class, 'getAll']);
         $route->get(':subs', [SubtitleController::class, 'get']);
         $route->get('at-time/:time', [SubtitleController::class, 'getAtTime']);
