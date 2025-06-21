@@ -1,6 +1,7 @@
 
 import os
 import json
+import time
 
 class key:
     config_name = "config.json"
@@ -59,8 +60,17 @@ class ConfigFile:
     def save(self):
         if (self.flags & ConfigFile.MODIFIED) == 0:
             return
-        with open(self.filename, 'w') as file:
-            json.dump(self.data, file, indent=4)
+        tmp_file = f"{self.filename}.tmp"
+        while True:
+            try:
+                with open(tmp_file, 'w') as file:
+                    json.dump(self.data, file, indent=4)
+                    file.flush()
+                    os.fsync(file.fileno())
+                os.replace(tmp_file, self.filename)
+                break
+            except OSError as e:
+                time.sleep(5)
         self.flags &= ~ConfigFile.MODIFIED
 
 
