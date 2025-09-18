@@ -148,8 +148,7 @@ class FrameController
                 WHERE s.alias = :show
                 AND g.alias = :group
                 AND g.id = f.group_id
-            )
-            LIMIT 1'
+            )'
         );
         $s->execute($v);
         if ($s->rowCount() == 1) {

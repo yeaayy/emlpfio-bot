@@ -74,7 +74,7 @@ class BestAlbumController {
         // Check if album already exists
         $s = DB::prepare(
             'SELECT
-                a.token
+                a.id, a.token, a.fb_album
             FROM `shows` AS s
             LEFT JOIN `groups` AS g ON g.show_id = s.id
             LEFT JOIN `best_albums` AS a ON a.group_id = g.id
@@ -89,7 +89,14 @@ class BestAlbumController {
             'user_id' => $v['user_id'],
         ]);
         if ($row = $s->fetch()) {
-            return $row;
+            if ($row['fb_album'] != $v['album_id']) {
+                $s = DB::prepare('UPDATE `best_albums` SET fb_album=:album_id WHERE id=:id');
+                $s->execute([
+                    'album_id' => $v['album_id'],
+                    'id' => $row['id'],
+                ]);
+            }
+            return [ 'ok' => true ];
         }
 
         // Generate token

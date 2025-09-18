@@ -12,6 +12,15 @@ cfg::load(__DIR__ . '/../config/index.php');
 ini_set('display_errors', 0);
 ini_set("log_errors", 1);
 ini_set("error_log", cfg::log_path());
+header('Access-Control-Allow-Origin: *');
+
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS'
+    && key_exists('HTTP_ACCESS_CONTROL_REQUEST_METHOD', $_SERVER)
+    && key_exists('HTTP_ACCESS_CONTROL_REQUEST_HEADERS', $_SERVER)) {
+    header('Access-Control-Allow-Methods: '.$_SERVER['HTTP_ACCESS_CONTROL_REQUEST_METHOD']);
+    header('Access-Control-Allow-Headers: '.$_SERVER['HTTP_ACCESS_CONTROL_REQUEST_HEADERS']);
+    exit();
+}
 
 $route = require __DIR__.'/../app/routes.php';
 

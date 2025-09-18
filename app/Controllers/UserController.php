@@ -31,8 +31,7 @@ class UserController {
         $s = DB::update(
             'UPDATE `users`
             SET %fields%, updated_at=@now
-            WHERE id = :user_id
-            LIMIT 1',
+            WHERE id = :user_id',
             $v, [
                 'telegram_token' => 'new_telegram_token',
                 'fb_token' => 'new_fb_token',

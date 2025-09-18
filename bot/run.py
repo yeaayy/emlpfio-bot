@@ -24,6 +24,8 @@ def create_post(s: requests.Session, super_config: ConfigFile, config: ConfigFil
             return True
         else:
             print(f"Error {result.status_code} {result.json()['error']}")
+            if result.status_code >= 500:
+                time.sleep(60)
     except Exception as e:
         print(f"Error {e}")
         time.sleep(15)
